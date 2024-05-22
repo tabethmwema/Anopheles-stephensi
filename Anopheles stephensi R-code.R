@@ -1,4 +1,4 @@
-setwd("C:/Users/tzm0087/OneDrive - Auburn University/Documents/SCHOOL/PhD/CLASSES/FIRST YEAR/SECOND SEMESTER/META-ANALYSIS/ANOPHELES STEPHENSI/Data/Unchanged data")
+setwd("")
 install.packages("see")
 install.packages("vioplot")
 
@@ -9,34 +9,32 @@ library(dplyr)
 library(vioplot)
 
 ####Import .csv data
-idata = read.table("An. stephensi spreadsheet-8-27-22_intervention.csv", header=T, sep=",")
-bdata = read.table("An. stephensi spreadsheet-11-24-22-bio.csv", header=T, sep=",")
+idata = read.table("intervention.csv", header=T, sep=",")
+bdata = read.table("bionomics.csv", header=T, sep=",")
 head(bdata)
 str(bdata) ###check dataframe
 
-
-#Separate into native
+#separate into native
 native = bdata[bdata$Origin=="n",,drop=FALSE]
 head(native)
 
-#seperate resting methods
-rest = native[native$Method=="r",,drop=FALSE]  #in the bdata set, when the method column in bdata is "r", put it in the rest dataset
+#separate resting methods
+rest = native[native$Method=="r",,drop=FALSE]  #in the bdata dataset, when the method column is "r", put it in the rest dataset
 head(rest)
 
-#seperate bite methods
+#separate bite methods
 bite = native[native$Method=="b",,drop=FALSE]
 head(bite)
 
-
-#Separate into invasive
+#separate into invasive
 invasive = bdata[bdata$Origin=="i",,drop=FALSE]
 head(invasive)
 
-#seperate resting methods
+#separate resting methods
 rest = invasive[invasive$Method=="r",,drop=FALSE] 
 head(rest)
 
-#seperate bite methods
+# separate bite methods
 bite = invasive[invasive$Method=="b",,drop=FALSE]
 head(bite)
 
@@ -115,7 +113,6 @@ colnames(OUT) = c("method1", "method2", "interceptEst", "slopeEst", "interceptT"
 methodcomp = as.data.frame(OUT)
 nrow(methodcomp[methodcomp$slopeP<0.05,])
 
-
 #F. generate a basic a plot
 pdata <- data.frame(y = log(badata$One.day.collection), x = badata$Condensed.collection.method)
 
@@ -161,7 +158,6 @@ badata.c$collresid <- rstandard(lm(log(One.day.collection)~Condensed.collection.
 #D. calculate regressions with permuted t values to estimate p values
 model = lm(collresid~Biting.indoor.or.outdoor+Condensed.collection.method, data=badata.c)
 summary(model)
-
 
 #save data 
 df = summary(model)$df 
@@ -231,7 +227,6 @@ badata$Condensed.collection.method[badata$Condensed.collection.method==""] = NA
 badata$Condensed.collection.method[badata$Condensed.collection.method=="Aquatic larval collection"] = NA
 badata = badata[!is.na(badata$Condensed.collection.method),] # Exclude rows with blanks (NA values) from column Condensed collection method
 
-
 badata$Resting.indoor.or.outdoor[badata$Resting.indoor.or.outdoor==""] = NA
 badata$Biting.indoor.or.outdoor = as.factor(badata$Biting.indoor.or.outdoor)
 badata$Condensed.collection.method = as.factor(badata$Condensed.collection.method)
@@ -248,7 +243,6 @@ badata.c2$collresid = rstandard(lm(log(One.day.collection)~Condensed.collection.
 #D. calculate regressions with permuted t values to estimate p values
 model = lm(collresid~Resting.indoor.or.outdoor+Condensed.collection.method, data=badata.c2)
 summary(model)
-
 
 #save data 
 df = summary(model)$df 
@@ -277,7 +271,6 @@ for(r in 1:nrow(emp)){
 emp
 emp[emp$p<0.05,]
 
-
 ###Collect residuals from the first model
 rstandard(model) ####produces the residuals
 cmodel = lm(log(One.day.collection)~Condensed.collection.method, data=badata)
@@ -285,7 +278,6 @@ badata$residCmodel = rstandard(cmodel)
 iomodel = lm(residCmodel~Biting.indoor.or.outdoor, data=badata)
 summary(iomodel)
 confint(iomodel)
-
 
 
 #Question 3. What is the most preferred breeding site?
@@ -296,8 +288,7 @@ library(dplyr)
 datumbreed = read.table("An. stephensi spreadsheet-11-24-22-bio.csv", header=T, sep=",")
 head(datumbreed)
 
-
-# Select columns of interest
+#Select columns of interest
 databreed <- datumbreed %>%
   filter(Mosquito.stage.reclassification == "Larvae") %>%
   select(Origin, Condensed.breeding.site, Mosquito.stage.reclassification:Density.per.day)
@@ -311,7 +302,7 @@ databreed <- databreed[databreed$Origin == 'i', ]
 
 
 ###Runs a pairwise regression
-breed= glm(log(Density.per.day)~Condensed.breeding.site, data=databreed[databreed$Condensed.breeding.site%in%c("Drinking water reservoirs","Waste water"),], family="gaussian") ###Mekala and I failed to replicate your permutation loop, so we did this simple that can be changed manually
+breed= glm(log(Density.per.day)~Condensed.breeding.site, data=databreed[databreed$Condensed.breeding.site%in%c("Drinking water reservoirs","Waste water"),], family="gaussian")
 summary(breed)
 exp(confint(breed)) #CI
 exp(coef(breed)) #Coeff
@@ -324,15 +315,10 @@ sim<-replicate(999,summary(glm(sample(log(Density.per.day),replace=F)~Condensed.
 #hist(sim)
 sum(abs(sim)>abs(summary(breed)$coefficients[2,3]))/1000 #p-value
 
-
-
-
-
 #Question 4: Which An. stephensi control interventions are effective for adults and larvae?
-
-setwd("C:/Users/tzm0087/OneDrive - Auburn University/Documents/SCHOOL/PhD/CLASSES/FIRST YEAR/SECOND SEMESTER/META-ANALYSIS/ANOPHELES STEPHENSI/Data/Unchanged data")
+setwd("")
 ####datuminter = read.csv(file.choose()) ####An. stephensi spreadsheet_11_04_22 ####Carbamate
-intervention = read.table("An. stephensi spreadsheet-11-18-22_intervention.csv", header=T, sep=",")
+intervention = read.table("intervention.csv", header=T, sep=",")
 
 library(dplyr)
 library(tidyverse)
@@ -341,7 +327,6 @@ library(dunn.test)
 
 head(intervention)
 
-
 #Adults
 # Filter data for adults and by origin (native "n", invasive "i"), 
 adult_data <- intervention %>%
@@ -349,7 +334,6 @@ adult_data <- intervention %>%
     Mosquito.stage.reclassification == "Adult" &
       trimws(Origin) == "i"  # change to "n" for native
   )
-
 
 # Count the number of rows for each insecticide
 insecticide_counts <- adult_data %>%
@@ -416,13 +400,11 @@ first_filter <- intervention %>%
          trimws(Insecticide) == "Temephos")
   )
 
-
 # Filter the result of the first filter with the second set of conditions
 organophosphate_biopesticide_larvae_data <- first_filter %>%
   filter(
     trimws(Origin) == "n"
   )
-
 
 #For invasive range
 first_filter <- intervention %>%
